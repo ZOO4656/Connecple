@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>コメント</title>
+</head>
+<body>
+	<form action="http://localhost:4567/main" method="post" accept-charset="utf-8">
+		<div>
+			ユーザ名
+		</div>
+		<input type="text" name="user_name">
+		<div>
+			コメント
+		</div>
+		<input type="text" name="comment">
+		<div>
+			ユーザID
+		</div>
+		<input type="text" name="user_id">
+<!-- 		<input type="hidden" name="user_id" value = > -->
+		<input type="submit" value = "送信"><br>
+	</form>
+	<% @ary.each do |row| %><br>
+	<%= row['user_name'] %>
+	<%= row['comment'] %>
+	<%= row['user_id'] %>
+	<% end %>
+</body>
+</html>
