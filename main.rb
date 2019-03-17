@@ -1,6 +1,9 @@
 require 'sinatra'
 require 'mysql2'
 require 'erb'
+require 'securerandom'
+require 'digest/sha1'
+
 
 get '/' do
   	client = Mysql2::Client.new(host: "0.0.0.0", username: "root", password: 'root', database: 'connecple')
@@ -10,6 +13,7 @@ get '/' do
   	erb :comment
 end
 
+#メインメニュー
 post '/main' do
  	client = Mysql2::Client.new(host: "0.0.0.0", username: "root", password: 'root', database: 'connecple')
   	client.query("INSERT INTO comment (user_name,comment,user_id) VALUES ('#{params['user_name']}','#{params['comment']}','#{params['user_id']}')")
@@ -18,3 +22,35 @@ post '/main' do
 	results.each {|row| @ary << row}
 	erb :comment
 end
+
+#新規登録画面の取得
+get '/user_newSignup' do
+  erb :newSign_up
+end
+
+#新規登録画面
+post '/user_newSignup' do
+  client = Mysql2::Client.new(host: "0.0.0.0", username: "root", password: 'root', database: 'connecple')
+
+  #パスワードのハッシュ化に伴いソルト生成
+  userSolt = SecureRandom.alphanumeric(16)
+  convertHashPass = Digest::SHA1.hexdigest("#{params['password']},#{userSolt}")
+  client.query("INSERT INTO user (name,password,user_id,pass_solt) VALUES ('#{params['name']}','#{convertHashPass}','#{params['user_id']}','#{userSolt}')")
+
+  # def hash(password, salt)
+  #   # hash化の際にsaltを含む
+  #   Digest::SHA1.hexdigest("#{password}#{salt}")
+  # end
+  erb :newSign_up
+end
+
+# post '/user_signup' do
+#   def hash(password, salt)
+#     # hash化の際にsaltを含む
+#     Digest::SHA1.hexdigest("#{salt}#{password}")
+#   end
+#   #パスワードのハッシュ化に伴いソルト生成
+#   SecureRandom.alphanumeric(16)
+
+# end
+
