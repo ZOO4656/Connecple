@@ -16,7 +16,7 @@ end
 #メインメニュー
 post '/main' do
  	client = Mysql2::Client.new(host: "0.0.0.0", username: "root", password: 'root', database: 'connecple')
-  	client.query("INSERT INTO comment (user_name,comment,user_id) VALUES ('#{params['user_name']}','#{params['comment']}','#{params['user_id']}')")
+	client.query("INSERT INTO comment (user_name,comment,user_id) VALUES ('#{params['user_name']}','#{params['comment']}','#{params['user_id']}')")
  	results = client.query("SELECT * FROM comment")
 	@ary = Array.new
 	results.each {|row| @ary << row}
@@ -36,21 +36,20 @@ post '/user_newSignup' do
   userSolt = SecureRandom.alphanumeric(16)
   convertHashPass = Digest::SHA1.hexdigest("#{params['password']},#{userSolt}")
   client.query("INSERT INTO user (name,password,user_id,pass_solt) VALUES ('#{params['name']}','#{convertHashPass}','#{params['user_id']}','#{userSolt}')")
-
-  # def hash(password, salt)
-  #   # hash化の際にsaltを含む
-  #   Digest::SHA1.hexdigest("#{password}#{salt}")
-  # end
   erb :newSign_up
 end
 
-# post '/user_signup' do
-#   def hash(password, salt)
-#     # hash化の際にsaltを含む
-#     Digest::SHA1.hexdigest("#{salt}#{password}")
-#   end
-#   #パスワードのハッシュ化に伴いソルト生成
-#   SecureRandom.alphanumeric(16)
+#サインアップ時のerbファイルを取得
+get '/user_signup' do
+  erb :sign_up
+end
 
-# end
+#サインアップの整合性確認
+post '/user_signup' do
+  client = Mysql2::Client.new(host: "0.0.0.0", username: "root", password: 'root', database: 'connecple')
+  @results = client.query("SELECT name,password,pass_solt FROM user")
+  results.each do |dbUserData|
+  puts dbUserData
+  end
+end
 
