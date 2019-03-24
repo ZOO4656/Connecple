@@ -10,8 +10,7 @@ configure do
 end
 
 get '/' do
-	client = Mysql2::Client.new(host: "0.0.0.0", username: "root", password: 'root', database: 'connecple')
-	results = client.query("SELECT * FROM comment")
+	results = get_client.query("SELECT * FROM comment")
 	@ary = Array.new
 	results.each {|row| @ary << row}
 	erb :comment
@@ -19,8 +18,7 @@ end
 
 #メインメニュー
 post '/main' do
- 	client = Mysql2::Client.new(host: "0.0.0.0", username: "root", password: 'root', database: 'connecple')
-	client.query("INSERT INTO comment (user_name,comment,user_id) VALUES ('#{params['user_name']}','#{params['comment']}','#{params['user_id']}')")
+	get_client.query("INSERT INTO comment (user_name,comment,user_id) VALUES ('#{params['user_name']}','#{params['comment']}','#{params['user_id']}')")
  	results = client.query("SELECT * FROM comment")
 	@ary = Array.new
 	results.each {|row| @ary << row}
@@ -34,20 +32,17 @@ end
 
 #新規登録画面
 post '/user_signup' do
-  client = Mysql2::Client.new(host: "0.0.0.0", username: "root", password: 'root', database: 'connecple')
-
   #パスワードのハッシュ化に伴いソルト生成
   userSolt = SecureRandom.alphanumeric(16)
   convertHashPass = Digest::SHA1.hexdigest("#{params['password']},#{userSolt}")
-  client.query("INSERT INTO user (name,password,user_id,pass_solt) VALUES ('#{params['name']}','#{convertHashPass}','#{params['user_id']}','#{userSolt}')")
+  get_client.query("INSERT INTO user (name,password,user_id,pass_solt) VALUES ('#{params['name']}','#{convertHashPass}','#{params['user_id']}','#{userSolt}')")
   session[:user_id] = params['user_id']
   redirect '/user'
 end
 
 #サインアップ時のerbファイルを取得
 get '/user_signin' do
-  client = Mysql2::Client.new(host: "0.0.0.0", username: "root", password: 'root', database: 'connecple')
-  results = client.query("SELECT * FROM user")
+  results = get_client.query("SELECT * FROM user")
   @ary = Array.new
   results.each {|row| @ary << row}
   @message = session[:message]
@@ -56,8 +51,7 @@ end
 
 #サインアップの整合性確認
 post '/user_signin' do
-  client = Mysql2::Client.new(host: "0.0.0.0", username: "root", password: 'root', database: 'connecple')
-  results = client.query("SELECT * FROM user WHERE name = '#{params['name']}'")
+  results = get_client.query("SELECT * FROM user WHERE name = '#{params['name']}'")
   ary = Array.new
   results.each {|row| ary << row}
   @user = ary[0]
@@ -88,8 +82,7 @@ get '/user' do
     redirect '/user_signin'
   end
 
-  client = Mysql2::Client.new(host: "0.0.0.0", username: "root", password: 'root', database: 'connecple')
-  results = client.query("SELECT * FROM user WHERE user_id = '#{user_id}'")
+  results = get_client.query("SELECT * FROM user WHERE user_id = '#{user_id}'")
   ary = Array.new
   results.each {|row| ary << row}
   @user = ary[0]
@@ -99,4 +92,8 @@ end
 get '/logout' do
   session.clear
   redirect '/user_signin'
+end
+
+def get_client
+  Mysql2::Client.new(host: "0.0.0.0", username: "root", password: 'root', database: 'connecple')
 end
