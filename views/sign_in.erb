@@ -6,14 +6,21 @@
 <body>
 	<form action="http://localhost:4567/user_signin" method="post" accept-charset="utf-8">
 		<div>
+			ログイン画面です
+		</div>
+
+		<div>
 			ユーザ名(半角英数字のみで頼む)
 		</div>
-		<input type="user_name" name="user_name">
+		<input type="name" name="name">
 		<div>
 			パスワード
 		</div>
 		<input type="password" name="passwrod">
 		<input type="submit" value = "送信"><br>
 	</form>
+	<% @ary.each do |row| %><br>
+	<%= row['name'] %>
+	<% end %>
 </body>
 </html>

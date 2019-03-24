@@ -51,9 +51,20 @@ end
 #サインアップの整合性確認
 post '/user_signin' do
   client = Mysql2::Client.new(host: "0.0.0.0", username: "root", password: 'root', database: 'connecple')
-  results = client.query("SELECT * FROM user")
-  @ary = Array.new
-  results.each {|row| @ary << row}
-  erb :sign_in
+  results = client.query("SELECT * FROM user WHERE name = '#{params['name']}'")
+  ary = Array.new
+  results.each {|row| ary << row}
+  @user = ary[0]
+  if @user.nil?
+    @massage = "ユーザ名がねぇ"
+    return erb :error
+  end
+
+  if @user['password'] != Digest::SHA1.hexdigest("#{params['password']},#{@user['pass_solt']}")
+    @massage = "パスワードミス"
+    return erb :error
+  end
+
+  erb :user
 end
 
