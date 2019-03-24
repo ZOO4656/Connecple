@@ -8,7 +8,7 @@
 		<div>
 			ログイン画面です
 		</div>
-
+		<%= @message %>
 		<div>
 			ユーザ名(半角英数字のみで頼む)
 		</div>
@@ -16,7 +16,7 @@
 		<div>
 			パスワード
 		</div>
-		<input type="password" name="passwrod">
+		<input type="password" name="password">
 		<input type="submit" value = "送信"><br>
 	</form>
 	<% @ary.each do |row| %><br>
