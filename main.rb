@@ -3,6 +3,8 @@ require 'mysql2'
 require 'erb'
 require 'securerandom'
 require 'digest/sha1'
+require 'redis'
+require 'sinatra/cookies'
 
 #sinatoraでセッションを使うためのお作法
 configure do
@@ -55,29 +57,42 @@ post '/user_signin' do
   ary = Array.new
   results.each {|row| ary << row}
   @user = ary[0]
+
+  #/user_signinにリダイレクトした際にメッセージを流用するため
+  #ユーザ名で検索を行い、いなかったらログインページにリダイレクト
   if @user.nil?
     session[:message] = "パスワードとユーザ名が間違っています"
     redirect '/user_signin'
   end
 
+  #パスワードの認証 ログイン時に入力したパスワードと登録されているsoltを繋げた文字列がDBの暗号化したパスワードと一致していればtrue
   if @user['password'] != Digest::SHA1.hexdigest("#{params['password']},#{@user['pass_solt']}")
     session[:message] = "パスワードとユーザ名が間違っています"
     redirect '/user_signin'
   end
 
-  puts Digest::SHA1.hexdigest("#{params['password']},#{@user['pass_solt']}")
-  puts params['password']
+  #セッションID用に16桁の文字列を発行
+  session_id = SecureRandom.alphanumeric(16)
 
-  #セッションにuser_idを記憶させる。セッションはメモリに残っているためサーバ落としたら全員ログアウト
-  session[:user_id] = @user['user_id']
+  #CokkiesにセッションIDを登録
+  cookies[:session] = session_id
+
+  #Redisにuser_idのセッション情報を保存
+  #Redisの構造 -> (キー, 値)
+  get_redis.set(session_id, @user['user_id'])
 
   #ログインに成功したらuserのマイページにリダイレクトする
   redirect '/user'
 end
 
 get '/user' do
-  #sessionのuser_idを変数に格納
-  user_id = session[:user_id]
+  #cookiesからsession_idを格納
+  session_id = cookies[:session]
+  if session_id.nil?
+    redirect '/user_signin'
+  end
+
+  user_id = get_redis.get(session_id)
   if user_id.nil?
     redirect '/user_signin'
   end
@@ -90,10 +105,14 @@ get '/user' do
 end
 
 get '/logout' do
-  session.clear
+  session.clear #修正箇所 ログアウトできていないため
   redirect '/user_signin'
 end
 
 def get_client
   Mysql2::Client.new(host: "0.0.0.0", username: "root", password: 'root', database: 'connecple')
+end
+
+def get_redis
+  Redis.new(:host => "127.0.0.1", :port => 6379)
 end
