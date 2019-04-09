@@ -11,13 +11,6 @@ configure do
   enable :sessions
 end
 
-get '/' do
-	results = get_client.query("SELECT * FROM comment")
-	@ary = Array.new
-	results.each {|row| @ary << row}
-	erb :comment
-end
-
 #メインメニュー
 post '/main' do
 	get_client.query("INSERT INTO comment (user_name,comment,user_id) VALUES ('#{params['user_name']}','#{params['comment']}','#{params['user_id']}')")
@@ -43,7 +36,7 @@ post '/user_signup' do
 end
 
 #サインアップ時のerbファイルを取得
-get '/user_signin' do
+get '/' do
   results = get_client.query("SELECT * FROM user")
   @ary = Array.new
   results.each {|row| @ary << row}
@@ -52,7 +45,7 @@ get '/user_signin' do
 end
 
 #サインアップの整合性確認
-post '/user_signin' do
+post '/' do
   results = get_client.query("SELECT * FROM user WHERE name = '#{params['name']}'")
   ary = Array.new
   results.each {|row| ary << row}
@@ -62,13 +55,13 @@ post '/user_signin' do
   #ユーザ名で検索を行い、いなかったらログインページにリダイレクト
   if @user.nil?
     session[:message] = "パスワードとユーザ名が間違っています"
-    redirect '/user_signin'
+    redirect '/'
   end
 
   #パスワードの認証 ログイン時に入力したパスワードと登録されているsoltを繋げた文字列がDBの暗号化したパスワードと一致していればtrue
   if @user['password'] != Digest::SHA1.hexdigest("#{params['password']},#{@user['pass_solt']}")
     session[:message] = "パスワードとユーザ名が間違っています"
-    redirect '/user_signin'
+    redirect '/'
   end
 
   #セッションID用に16桁の文字列を発行
@@ -89,12 +82,12 @@ get '/user' do
   #cookiesからsession_idを格納
   session_id = cookies[:session]
   if session_id.nil?
-    redirect '/user_signin'
+    redirect '/'
   end
 
   user_id = get_redis.get(session_id)
   if user_id.nil?
-    redirect '/user_signin'
+    redirect '/'
   end
 
   results = get_client.query("SELECT * FROM user WHERE user_id = '#{user_id}'")
@@ -106,7 +99,7 @@ end
 
 get '/logout' do
   session.clear #修正箇所 ログアウトできていないため
-  redirect '/user_signin'
+  redirect '/'
 end
 
 def get_client
