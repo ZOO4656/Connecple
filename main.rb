@@ -51,7 +51,7 @@ post '/' do
   results.each {|row| ary << row}
   @user = ary[0]
 
-  #/user_signinにリダイレクトした際にメッセージを流用するため
+  #'/'にリダイレクトした際にメッセージを流用するため
   #ユーザ名で検索を行い、いなかったらログインページにリダイレクト
   if @user.nil?
     session[:message] = "パスワードとユーザ名が間違っています"
@@ -80,11 +80,13 @@ end
 
 get '/user' do
   #cookiesからsession_idを格納
+  #cookiesにセッションがなければ再ログインさせる
   session_id = cookies[:session]
   if session_id.nil?
     redirect '/'
   end
 
+  #RedisにセッションIDがなければ再ログインさせる
   user_id = get_redis.get(session_id)
   if user_id.nil?
     redirect '/'
@@ -98,9 +100,16 @@ get '/user' do
 end
 
 get '/logout' do
-  session.clear #修正箇所 ログアウトできていないため
+  #Cookiesに登録されているキーを参照しRedis側で削除
+  get_redis.del(cookies[:session])
+  session[:message] = "ログアウトしました。"
   redirect '/'
 end
+
+# def logout(user_id)
+#   session.delete(user_id) #修正箇所 ログアウトできていないため
+#   redirect '/'
+# end
 
 def get_client
   Mysql2::Client.new(host: "0.0.0.0", username: "root", password: 'root', database: 'connecple')
