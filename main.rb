@@ -82,8 +82,7 @@ post '/' do
 end
 
 get '/user' do
-  #cookiesからsession_idを格納
-  #cookiesにセッションがなければ再ログインさせる
+  #cookiesからsession_idを格納、なければ再ログイン
   session_id = cookies[:session]
   if session_id.nil?
     redirect '/'
@@ -108,11 +107,6 @@ get '/logout' do
   session[:message] = "ログアウトしました。"
   redirect '/'
 end
-
-# def logout(user_id)
-#   session.delete(user_id) #修正箇所 ログアウトできていないため
-#   redirect '/'
-# end
 
 def get_client
   Mysql2::Client.new(host: "0.0.0.0", username: "root", password: 'root', database: 'connecple')
