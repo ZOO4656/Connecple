@@ -11,6 +11,9 @@ configure do
   enable :sessions
 end
 
+#タイムアウト用の変数
+timeOut = 60
+
 #メインメニュー
 post '/main' do
 	get_client.query("INSERT INTO comment (user_name,comment,user_id) VALUES ('#{params['user_name']}','#{params['comment']}','#{params['user_id']}')")
@@ -72,7 +75,7 @@ post '/' do
 
   #Redisにuser_idのセッション情報を保存
   #Redisの構造 -> (キー, 値)
-  get_redis.set(session_id, @user['user_id'])
+  get_redis.setex(session_id, timeOut, @user['user_id'])
 
   #ログインに成功したらuserのマイページにリダイレクトする
   redirect '/user'
