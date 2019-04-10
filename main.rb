@@ -11,6 +11,9 @@ configure do
   enable :sessions
 end
 
+#タイムアウト用の変数
+timeOut = 60
+
 #メインメニュー
 post '/main' do
 	get_client.query("INSERT INTO comment (user_name,comment,user_id) VALUES ('#{params['user_name']}','#{params['comment']}','#{params['user_id']}')")
@@ -51,7 +54,7 @@ post '/' do
   results.each {|row| ary << row}
   @user = ary[0]
 
-  #/user_signinにリダイレクトした際にメッセージを流用するため
+  #'/'にリダイレクトした際にメッセージを流用するため
   #ユーザ名で検索を行い、いなかったらログインページにリダイレクト
   if @user.nil?
     session[:message] = "パスワードとユーザ名が間違っています"
@@ -72,19 +75,20 @@ post '/' do
 
   #Redisにuser_idのセッション情報を保存
   #Redisの構造 -> (キー, 値)
-  get_redis.set(session_id, @user['user_id'])
+  get_redis.setex(session_id, timeOut, @user['user_id'])
 
   #ログインに成功したらuserのマイページにリダイレクトする
   redirect '/user'
 end
 
 get '/user' do
-  #cookiesからsession_idを格納
+  #cookiesからsession_idを格納、なければ再ログイン
   session_id = cookies[:session]
   if session_id.nil?
     redirect '/'
   end
 
+  #RedisにセッションIDがなければ再ログインさせる
   user_id = get_redis.get(session_id)
   if user_id.nil?
     redirect '/'
@@ -98,7 +102,9 @@ get '/user' do
 end
 
 get '/logout' do
-  session.clear #修正箇所 ログアウトできていないため
+  #Cookiesに登録されているキーを参照しRedis側で削除
+  get_redis.del(cookies[:session])
+  session[:message] = "ログアウトしました。"
   redirect '/'
 end
 
