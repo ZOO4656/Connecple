@@ -49,7 +49,7 @@ end
 
 #サインアップの整合性確認
 post '/' do
-  results = get_client.query("SELECT * FROM user WHERE name = '#{params['name']}'")
+  results = get_client.query("SELECT * FROM user WHERE display_name = '#{params['name']}'")
   ary = Array.new
   results.each {|row| ary << row}
   @user = ary[0]
@@ -94,7 +94,7 @@ get '/user' do
     redirect '/'
   end
 
-  results = get_client.query("SELECT * FROM user WHERE user_id = '#{user_id}'")
+  results = get_client.query("SELECT * FROM user WHERE uniqe_name = '#{user_id}'")
   ary = Array.new
   results.each {|row| ary << row}
   @user = ary[0]
