@@ -44,6 +44,7 @@ get '/' do
   @ary = Array.new
   results.each {|row| @ary << row}
   @message = session[:message]
+  session[:message] = nil
   erb :sign_in
 end
 
@@ -53,6 +54,7 @@ post '/' do
   ary = Array.new
   results.each {|row| ary << row}
   @user = ary[0]
+  puts @user
 
   #'/'にリダイレクトした際にメッセージを流用するため
   #ユーザ名で検索を行い、いなかったらログインページにリダイレクト
@@ -75,7 +77,7 @@ post '/' do
 
   #Redisにuser_idのセッション情報を保存
   #Redisの構造 -> (キー, 値)
-  get_redis.setex(session_id, timeOut, @user['user_id'])
+  get_redis.setex(session_id, timeOut, @user['uniqe_name'])
 
   #ログインに成功したらuserのマイページにリダイレクトする
   redirect '/user'
@@ -90,7 +92,7 @@ get '/user' do
 
   #RedisにセッションIDがなければ再ログインさせる
   user_id = get_redis.get(session_id)
-  if user_id.nil?
+  if user_id.nil? or user_id.empty?
     redirect '/'
   end
 
