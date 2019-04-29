@@ -1,0 +1,30 @@
+.main-style {
+	display: flex;
+}
+
+.right-column {
+	flex: 1;
+}
+
+.left-column {
+	flex: 1;
+}
+
+.top-title {
+	font-size: 40px;
+    margin: 8px 10px;
+}
+
+.form-control {
+	width: 40%;
+}
+
+.sign_in_img {
+	width:100%;
+}
+
+.body-style > footer > p {
+	width: 100%;
+	background-color: #aaa;
+	margin: 0;
+}
