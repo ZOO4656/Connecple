@@ -41,3 +41,30 @@
 	height: 100%;
 }
 
+.commentHome-body {
+	background-color: rgb(230, 236, 240);
+}
+
+.commentHome-Outside {
+	display: flex;
+}
+
+.commentHome-left {
+	background-color: rgb(255, 236, 240);
+	flex: 0.15;
+	margin: 10px;
+}
+
+.commentHome-right {
+	background-color: rgb(230, 255, 240);
+	flex: 0.15;
+	margin: 10px;
+
+}
+
+.commentHome-center {
+	background-color: #fff;
+	flex: 1;
+	margin: 10px;
+
+}

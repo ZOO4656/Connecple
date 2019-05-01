@@ -12,20 +12,18 @@ configure do
 end
 
 #タイムアウト用の変数
-timeOut = 60
+timeOut = 600
 
 get '/home' do
   #cookiesからsession_idを格納、なければ再ログイン
   session_id = cookies[:session]
   if session_id.nil?
-    puts "ここまで1"
     redirect '/'
   end
 
   #RedisにセッションIDがなければ再ログインさせる
   user_id = get_redis.get(session_id)
   if user_id.nil? or user_id.empty?
-    puts "ここまで2"
     redirect '/'
   end
 
