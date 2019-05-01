@@ -68,3 +68,11 @@
 	margin: 10px;
 
 }
+
+.commentHome-inComment {
+	display: inline-flex;
+}
+
+.commentHome-outComment {
+	line-height:1.5px;
+}

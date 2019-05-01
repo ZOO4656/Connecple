@@ -12,7 +12,7 @@ configure do
 end
 
 #タイムアウト用の変数
-timeOut = 600
+timeOut = 3600
 
 get '/home' do
   #cookiesからsession_idを格納、なければ再ログイン
@@ -32,14 +32,18 @@ get '/home' do
   results.each {|row| ary << row}
   @user = ary[0]
 
-
-  results = get_client.query("SELECT * FROM comment")
+  results = get_client.query("SELECT * FROM user INNER JOIN comment ON user.id = comment.user_id")
   @ary = Array.new
-
-  results.each do |row|
-    @ary << row
-  end
+  results.each {|row| @ary << row}
   erb :comment
+
+  # results = get_client.query("SELECT * FROM comment")
+  # @ary = Array.new
+
+  # results.each do |row|
+  #   @ary << row
+  # end
+  # erb :comment
 end
 
 #コメント画面

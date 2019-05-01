@@ -49,19 +49,20 @@
 		</div>
 		<div class="commentHome-center">
 			<div clas="commentHome-bar">ホーム</div>
-			<div class="commentHome-inComment">home-inComment</div>
-			<div class="commentHome-outComment">home-outComment</div>
-			<form action="http://localhost:4567/main" method="post" accept-charset="utf-8">
-				<div>
-					コメント
-				</div>
-				<input type="text" name="comment">
-				<input type="submit" value = "送信"><br>
-			</form>
-			<% @ary.each do |row| %><br>
-			<%= row['comment'] %>
-			<%= row['user_id'] %>
-			<% end %>
+			<div class="commentHome-inComment">
+				<div class="commentHome-inComment-icon">アイコン</div>
+				<form action="http://localhost:4567/main" method="post" accept-charset="utf-8">
+					<input type="text" name="comment">
+					<input type="submit" value = "送信"><br>
+				</form>
+			</div>
+			<div class="commentHome-putComment">
+				home-putComment
+				<% @ary.each do |row| %><br>
+				<%= row['display_name'] %>
+				<%= row['comment'] %>
+				<% end %>
+			</div>
 		</div>
 		<div class="commentHome-right">
 			<div>home-commetright</div>
