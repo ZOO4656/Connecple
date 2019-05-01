@@ -38,10 +38,11 @@ get '/home' do
   erb :comment
 end
 
-#コメント画面
+#コメント画面　　　　　ここにセッションからuser_id(unique_id)を取得してそのユーザであることを紐づけてINTOする
+#redisからセッションIDを取得し、変数に格納 -> セッションIDと紐づけてcommentテーブルに格納する
 post '/home' do
-  get_client.query("INSERT INTO comment (user_name,comment,user_id) VALUES ('#{params['user_name']}','#{params['comment']}','#{params['user_id']}')")
-  results = client.query("SELECT * FROM comment")
+  get_client.query("INSERT INTO comment (comment,user_id) VALUES ('#{params['comment']}','#{session[:id]}')")
+  results = get_client.query("SELECT * FROM comment INNER JOIN user ON user.id = comment.user_id")
   @ary = Array.new
   results.each {|row| @ary << row}
   erb :comment
@@ -62,7 +63,7 @@ post '/user_signup' do
   redirect '/user'
 end
 
-#サインアップ時のerbファイルを取得
+#サインイン時のerbファイルを取得
 get '/' do
   results = get_client.query("SELECT * FROM user")
   @ary = Array.new
@@ -78,9 +79,8 @@ post '/' do
   ary = Array.new
   results.each {|row| ary << row}
   @user = ary[0]
-  puts @user
 
-  #'/'にリダイレクトした際にメッセージを流用するため
+  #'/'にリダイレクトした際にメッセージを流用する
   #ユーザ名で検索を行い、いなかったらログインページにリダイレクト
   if @user.nil?
     session[:message] = "パスワードとユーザ名が間違っています"
@@ -98,6 +98,8 @@ post '/' do
 
   #CokkiesにセッションIDを登録
   cookies[:session] = session_id
+  #sessionにunique_idを登録
+  session[:id] = @user['id']
 
   #Redisにuser_idのセッション情報を保存
   #Redisの構造 -> (キー, 値)
