@@ -36,14 +36,6 @@ get '/home' do
   @ary = Array.new
   results.each {|row| @ary << row}
   erb :comment
-
-  # results = get_client.query("SELECT * FROM comment")
-  # @ary = Array.new
-
-  # results.each do |row|
-  #   @ary << row
-  # end
-  # erb :comment
 end
 
 #コメント画面
