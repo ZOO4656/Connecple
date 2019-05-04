@@ -32,7 +32,7 @@ get '/home' do
   results.each {|row| ary << row}
   @user = ary[0]
 
-  results = get_client.query("SELECT * FROM user INNER JOIN comment ON user.id = comment.user_id")
+  results = get_client.query("SELECT * FROM user INNER JOIN comment ON user.id = comment.user_id ORDER BY comment.id DESC")
   @ary = Array.new
   results.each {|row| @ary << row}
   erb :comment
@@ -42,7 +42,7 @@ end
 #redisからセッションIDを取得し、変数に格納 -> セッションIDと紐づけてcommentテーブルに格納する
 post '/home' do
   get_client.query("INSERT INTO comment (comment,user_id) VALUES ('#{params['comment']}','#{session[:id]}')")
-  results = get_client.query("SELECT * FROM comment INNER JOIN user ON user.id = comment.user_id")
+  results = get_client.query("SELECT * FROM comment INNER JOIN user ON user.id = comment.user_id ORDER BY comment.id DESC")
   @ary = Array.new
   results.each {|row| @ary << row}
   erb :comment
