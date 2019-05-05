@@ -38,8 +38,6 @@ get '/home' do
   erb :comment
 end
 
-#コメント画面　　　　　ここにセッションからuser_id(unique_id)を取得してそのユーザであることを紐づけてINTOする
-#redisからセッションIDを取得し、変数に格納 -> セッションIDと紐づけてcommentテーブルに格納する
 post '/home' do
   get_client.query("INSERT INTO comment (comment,user_id) VALUES ('#{params['comment']}','#{session[:id]}')")
   results = get_client.query("SELECT * FROM comment INNER JOIN user ON user.id = comment.user_id ORDER BY comment.id DESC")
@@ -98,11 +96,17 @@ post '/' do
 
   #CokkiesにセッションIDを登録
   cookies[:session] = session_id
-  #sessionにunique_idを登録
+  #sessionにuserのidを登録
   session[:id] = @user['id']
 
+  print @user['id']
+  print @user['id']
+  print @user['id']
+  print @user['id']
+  print @user['id']
+
   #Redisにuser_idのセッション情報を保存
-  #Redisの構造 -> (キー, 値)
+  #Redisexの構造 -> (キー,タイムアウト時間, 値)
   get_redis.setex(session_id, timeOut, @user['unique_name'])
 
   #ログインに成功したらuserのマイページにリダイレクトする
@@ -123,6 +127,21 @@ get '/user/:unique_name' do
     end
 
     erb :user
+end
+
+get '/mypage' do
+  print cookies[:session]
+  redis_uniqueid = get_redis.get(cookies[:session])
+  print redis_uniqueid
+  # results = get_client.query("SELECT display_name FROM user WHERE unique_name = #{redis_uniqueid}")
+  # ary = Array.new
+  # results.each {|row| ary << row}
+  # @user = ary[0]
+  # print login_userid
+  results = get_client.query("SELECT user.display_name,comment.comment FROM user INNER JOIN comment ON user.id = comment.user_id WHERE unique_name = '#{redis_uniqueid}' ORDER BY comment.id DESC ")
+  @ary = Array.new
+  results.each {|row| @ary << row}
+  erb :mypage
 end
 
 get '/logout' do

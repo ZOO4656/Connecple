@@ -70,14 +70,16 @@
 }
 
 .commentHome-bar {
-	border: 1px solid #e6ecef;
 	padding: 10px 0 10px 10px;
 	font-size: 20px;
     font-weight: bold;}
 
 .commentHome-inComment {
+	width: 100%;
 	display: inline-flex;
 	padding: 10px;
+	border: solid #e6ecef;
+    border-width: 1px 0;
 }
 
 .commentHome-outComment {
@@ -87,5 +89,4 @@
 
 .commentHome-putComment {
 	padding: 10px 0 10px 10px;
-	border: 1px solid #e6ecef;
 }
