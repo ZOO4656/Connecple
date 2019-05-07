@@ -12,7 +12,7 @@ configure do
 end
 
 #タイムアウト用の変数
-timeOut = 600
+timeOut = 3600
 
 get '/home' do
   #cookiesからsession_idを格納、なければ再ログイン
@@ -32,20 +32,15 @@ get '/home' do
   results.each {|row| ary << row}
   @user = ary[0]
 
-
-  results = get_client.query("SELECT * FROM comment")
+  results = get_client.query("SELECT * FROM user INNER JOIN comment ON user.id = comment.user_id ORDER BY comment.id DESC")
   @ary = Array.new
-
-  results.each do |row|
-    @ary << row
-  end
+  results.each {|row| @ary << row}
   erb :comment
 end
 
-#コメント画面
 post '/home' do
-  get_client.query("INSERT INTO comment (user_name,comment,user_id) VALUES ('#{params['user_name']}','#{params['comment']}','#{params['user_id']}')")
-  results = client.query("SELECT * FROM comment")
+  get_client.query("INSERT INTO comment (comment,user_id) VALUES ('#{params['comment']}','#{session[:id]}')")
+  results = get_client.query("SELECT * FROM comment INNER JOIN user ON user.id = comment.user_id ORDER BY comment.id DESC")
   @ary = Array.new
   results.each {|row| @ary << row}
   erb :comment
@@ -66,7 +61,7 @@ post '/user_signup' do
   redirect '/user'
 end
 
-#サインアップ時のerbファイルを取得
+#サインイン時のerbファイルを取得
 get '/' do
   results = get_client.query("SELECT * FROM user")
   @ary = Array.new
@@ -82,9 +77,8 @@ post '/' do
   ary = Array.new
   results.each {|row| ary << row}
   @user = ary[0]
-  puts @user
 
-  #'/'にリダイレクトした際にメッセージを流用するため
+  #'/'にリダイレクトした際にメッセージを流用する
   #ユーザ名で検索を行い、いなかったらログインページにリダイレクト
   if @user.nil?
     session[:message] = "パスワードとユーザ名が間違っています"
@@ -102,9 +96,17 @@ post '/' do
 
   #CokkiesにセッションIDを登録
   cookies[:session] = session_id
+  #sessionにuserのidを登録
+  session[:id] = @user['id']
+
+  print @user['id']
+  print @user['id']
+  print @user['id']
+  print @user['id']
+  print @user['id']
 
   #Redisにuser_idのセッション情報を保存
-  #Redisの構造 -> (キー, 値)
+  #Redisexの構造 -> (キー,タイムアウト時間, 値)
   get_redis.setex(session_id, timeOut, @user['unique_name'])
 
   #ログインに成功したらuserのマイページにリダイレクトする
@@ -125,6 +127,21 @@ get '/user/:unique_name' do
     end
 
     erb :user
+end
+
+get '/mypage' do
+  print cookies[:session]
+  redis_uniqueid = get_redis.get(cookies[:session])
+  print redis_uniqueid
+  # results = get_client.query("SELECT display_name FROM user WHERE unique_name = #{redis_uniqueid}")
+  # ary = Array.new
+  # results.each {|row| ary << row}
+  # @user = ary[0]
+  # print login_userid
+  results = get_client.query("SELECT user.display_name,comment.comment FROM user INNER JOIN comment ON user.id = comment.user_id WHERE unique_name = '#{redis_uniqueid}' ORDER BY comment.id DESC ")
+  @ary = Array.new
+  results.each {|row| @ary << row}
+  erb :mypage
 end
 
 get '/logout' do

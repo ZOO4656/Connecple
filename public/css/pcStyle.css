@@ -53,18 +53,40 @@
 	background-color: rgb(255, 236, 240);
 	flex: 0.15;
 	margin: 10px;
+	padding: 10px;
 }
 
 .commentHome-right {
 	background-color: rgb(230, 255, 240);
 	flex: 0.15;
 	margin: 10px;
-
+	padding: 10px;
 }
 
 .commentHome-center {
 	background-color: #fff;
 	flex: 1;
 	margin: 10px;
+}
 
+.commentHome-bar {
+	padding: 10px 0 10px 10px;
+	font-size: 20px;
+    font-weight: bold;}
+
+.commentHome-inComment {
+	width: 100%;
+	display: inline-flex;
+	padding: 10px;
+	border: solid #e6ecef;
+    border-width: 1px 0;
+}
+
+.commentHome-outComment {
+	line-height:1.5px;
+	border: 1px solid #e6ecef;
+}
+
+.commentHome-putComment {
+	padding: 10px 0 10px 10px;
 }
