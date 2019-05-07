@@ -12,7 +12,7 @@ configure do
 end
 
 #タイムアウト用の変数
-timeOut = 3600
+timeOut = 600
 
 get '/home' do
   #cookiesからsession_idを格納、なければ再ログイン
@@ -99,12 +99,6 @@ post '/' do
   #sessionにuserのidを登録
   session[:id] = @user['id']
 
-  print @user['id']
-  print @user['id']
-  print @user['id']
-  print @user['id']
-  print @user['id']
-
   #Redisにuser_idのセッション情報を保存
   #Redisexの構造 -> (キー,タイムアウト時間, 値)
   get_redis.setex(session_id, timeOut, @user['unique_name'])
@@ -133,11 +127,6 @@ get '/mypage' do
   print cookies[:session]
   redis_uniqueid = get_redis.get(cookies[:session])
   print redis_uniqueid
-  # results = get_client.query("SELECT display_name FROM user WHERE unique_name = #{redis_uniqueid}")
-  # ary = Array.new
-  # results.each {|row| ary << row}
-  # @user = ary[0]
-  # print login_userid
   results = get_client.query("SELECT user.display_name,comment.comment FROM user INNER JOIN comment ON user.id = comment.user_id WHERE unique_name = '#{redis_uniqueid}' ORDER BY comment.id DESC ")
   @ary = Array.new
   results.each {|row| @ary << row}
