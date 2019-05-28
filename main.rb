@@ -56,9 +56,11 @@ post '/user_signup' do
   #パスワードのハッシュ化に伴いソルト生成
   userSolt = SecureRandom.alphanumeric(16)
   convertHashPass = Digest::SHA1.hexdigest("#{params['password']},#{userSolt}")
-  get_client.query("INSERT INTO user (name,password,user_id,pass_solt) VALUES ('#{params['name']}','#{convertHashPass}','#{params['user_id']}','#{userSolt}')")
-  session[:user_id] = params['user_id']
-  redirect '/user'
+  get_client.query("INSERT INTO user (display_name,password,unique_name,pass_solt) VALUES ('#{params['name']}','#{convertHashPass}','#{params['unique_name']}','#{userSolt}')")
+  session[:user_id] = params['unique_name']
+
+  ##新規登録が完了したらhomeに移動させるための処理を書く
+  redirect '/home'
 end
 
 #サインイン時のerbファイルを取得
